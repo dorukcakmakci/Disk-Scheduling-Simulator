@@ -27,9 +27,8 @@ double find_stddev(int * arr, int size){
 void FCFS(int N, char* filename){
 
     FILE* fptr;
-    int time[100];
-    int *cylinder;
-    cylinder = malloc(100 * sizeof(int));
+    int time[101];
+    int cylinder[101];
 
     fptr = fopen(filename, "r");
 
@@ -54,7 +53,7 @@ void FCFS(int N, char* filename){
     }
 
 
-    if(linecount != 100){
+    if(linecount != 101){
         time[linecount] = -1;
         cylinder[linecount] = -1;
     }
@@ -66,11 +65,12 @@ void FCFS(int N, char* filename){
     }
 
     int elapsedTime = 0;
-    int oldElapsedTime = 0;
     int numberOfRequestsFinished = 0;
    
-    int *requestGrantTime;
-    requestGrantTime = malloc(100*sizeof(int));
+    int requestGrantTime[101];
+    for(int i = 0; i < linecount;i++){
+        requestGrantTime[i] = 0;
+    }
     
     int currentIndex = 0;
     int currentCylinder = 1;
@@ -80,17 +80,13 @@ void FCFS(int N, char* filename){
 
         if(elapsedTime < time[currentIndex]){
             elapsedTime++;
-            printf("1\n");
             continue;
         }
         if(currentCylinder == cylinder[currentIndex]){
             requestGrantTime[currentIndex] += elapsedTime - time[currentIndex];//elapsedTime - oldElapsedTime + time[currentIndex];
-            oldElapsedTime = elapsedTime;
-            printf("%d-------\n", numberOfRequestsFinished);
             fflush(stdout);
             numberOfRequestsFinished++;
             currentIndex++;
-            printf("2\n");
         }
         else if(currentCylinder < cylinder[currentIndex]){
             while(currentCylinder < cylinder[currentIndex]){
@@ -98,7 +94,6 @@ void FCFS(int N, char* filename){
                 currentCylinder++;
                 elapsedTime++;
             }
-            printf("3\n");
         }
         else if(currentCylinder > cylinder[currentIndex]){
             while(currentCylinder > cylinder[currentIndex]){
@@ -106,10 +101,8 @@ void FCFS(int N, char* filename){
                 currentCylinder--;
                 elapsedTime++;
             }
-            printf("4\n");
         }
     }
-    printf("linecount===%d\n", linecount);
 
     printf("FCFS\n----\nElapsed time: %d\nAverage wait time: %f\nStandard deviation of wait times: %f\n", elapsedTime, find_mean(requestGrantTime, linecount), find_stddev(requestGrantTime, linecount));
     for(int i  = 0; i< linecount; i++){
@@ -117,12 +110,7 @@ void FCFS(int N, char* filename){
     }
     fflush(stdout);
 
-    fclose(fptr);
-
-    free(requestGrantTime);
-    
-
-     
+    fclose(fptr);     
 }
 
 int getMinimumNotTraversedIndex(int * request, int * granted, int headLocation, int size, int *time, int currentTime){
@@ -145,9 +133,8 @@ int getMinimumNotTraversedIndex(int * request, int * granted, int headLocation, 
 void SSTF(int N, char* filename){
 
     FILE* fptr;
-    int time[100];
-    int *cylinder;
-    cylinder = malloc(100*sizeof(int));
+    int time[101];
+    int cylinder[101];
 
     fptr = fopen(filename, "r");
 
@@ -172,7 +159,7 @@ void SSTF(int N, char* filename){
     }
 
 
-    if(linecount != 100){
+    if(linecount != 101){
         time[linecount] = -1;
         
     }
@@ -186,24 +173,18 @@ void SSTF(int N, char* filename){
     }
 
     int elapsedTime = 0;
-    int oldElapsedTime = 0;
     int numberOfRequestsFinished = 0;
    
-    int *requestGrantTime;
-    requestGrantTime = malloc(100*sizeof(int));
+    int requestGrantTime[101];
 
-    int *grantRequest;
-    grantRequest =  malloc(100*sizeof(int));
+    int grantRequest[101];
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 101; i++){
         if(i >= linecount)
             grantRequest[i] = 1;
         else if(i == 0){
-            printf("yarrakBB\n");
             grantRequest[i] = 1;
-            printf("yarrakAA\n");
-        }
-            
+        }   
         else
             grantRequest[i] = 0;
     }
@@ -216,33 +197,26 @@ void SSTF(int N, char* filename){
 
         if(elapsedTime < time[currentIndex]){
             elapsedTime++;
-            printf("1\n");
             continue;
         }
-        if(currentCylinder == cylinder[currentIndex]){
-            
-            oldElapsedTime = elapsedTime;
-            printf("%d-------\n", numberOfRequestsFinished);
+        if(currentCylinder == cylinder[currentIndex]){  
             fflush(stdout);
             numberOfRequestsFinished++;
             currentIndex = getMinimumNotTraversedIndex(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
             grantRequest[currentIndex] = 1;
             requestGrantTime[currentIndex] = elapsedTime - time[currentIndex];
-            printf("2\n");
         }
         else if(currentCylinder < cylinder[currentIndex]){
             while(currentCylinder < cylinder[currentIndex]){
                 currentCylinder++;
                 elapsedTime++;
             }
-            printf("3\n");
         }
         else if(currentCylinder > cylinder[currentIndex]){
             while(currentCylinder > cylinder[currentIndex]){
                 currentCylinder--;
                 elapsedTime++;
             }
-            printf("4\n");
         }
     }
 
@@ -251,35 +225,10 @@ void SSTF(int N, char* filename){
         printf("Request %d => Time: %d   Cylinder => %d Wait Time: %d\n", (i+1), time[i], cylinder[i], requestGrantTime[i]);
     }
     fflush(stdout);
-
     fclose(fptr);
-
-    //free(requestGrantTime); 
-    //free(cylinder);
-    //free(grantRequest); 
+ 
 }
 
-/*int *getMaximumAndMinimumNotTraversedIndex(int * request, int * granted, int size, int *time, int currentTime){
-    int *result = malloc(2*sizeof(int));
-    int max = -1;
-    int min = 999999;
-    for(int i = 0; i < size; i++){
-        if(granted[i] == 1){
-            continue;
-        }
-        else{
-            if(request[i] > max && time[i] < currentTime){
-                result[1] = i;
-                max = request[i];
-            }
-            if(request[i] <  min && time[i] < currentTime){
-                result[0] = i;
-                min = request[i];
-            }
-        }
-    }
-    return result;
-}*/
 // returns -1 if no such index
 int getNotGrantedIndexToTheRight(int * request, int * granted, int headLocation, int size, int *time, int currentTime){
     int result = -1; 
@@ -318,8 +267,8 @@ int getNotGrantedIndexToTheLeft(int * request, int * granted, int headLocation, 
 void LOOK(int N, char* filename){
     
     FILE* fptr;
-    int time[100];
-    int cylinder[100];
+    int time[101];
+    int cylinder[101];
 
     fptr = fopen(filename, "r");
 
@@ -344,7 +293,7 @@ void LOOK(int N, char* filename){
     }
 
 
-    if(linecount != 100){
+    if(linecount != 101){
         time[linecount] = -1;
         cylinder[linecount] = -1;
     }
@@ -356,20 +305,17 @@ void LOOK(int N, char* filename){
     }
 
     int elapsedTime = 0;
-    int oldElapsedTime = 0;
     int numberOfRequestsFinished = 0;
    
-    int *requestGrantTime;
-    requestGrantTime = malloc(100*sizeof(int));
+    int requestGrantTime[101];
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 101; i++){
         requestGrantTime[i] = 0;
     }
 
-    int *grantRequest;
-    grantRequest =  malloc(100*sizeof(int));
+    int grantRequest[101];
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 101; i++){
         if(i >= linecount)
             grantRequest[i] = 1;
         else 
@@ -389,7 +335,6 @@ void LOOK(int N, char* filename){
     while(numberOfRequestsFinished < linecount){
 
         
-
         if(elapsedTime < time[currentIndex]){
             elapsedTime++;
             printf("1\n");
@@ -410,13 +355,9 @@ void LOOK(int N, char* filename){
             if(currentCylinder == cylinder[currentIndex]){
                     requestGrantTime[currentIndex] += elapsedTime - time[currentIndex];
                     grantRequest[currentIndex] = 1;
-                    oldElapsedTime = elapsedTime;
-                    printf("%d-------\n", numberOfRequestsFinished);
                     fflush(stdout);
                     numberOfRequestsFinished++;
-                    printf("2\n");
             }
-            printf("3\n");
             tempR = getNotGrantedIndexToTheRight(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
             tempL = getNotGrantedIndexToTheLeft(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
             if(tempR == -1)
@@ -432,14 +373,10 @@ void LOOK(int N, char* filename){
             }
             if(currentCylinder == cylinder[currentIndex]){
                     requestGrantTime[currentIndex] += elapsedTime - time[currentIndex];
-                    oldElapsedTime = elapsedTime;
                     grantRequest[currentIndex] = 1;
-                    printf("%d-------\n", numberOfRequestsFinished);
                     fflush(stdout);
                     numberOfRequestsFinished++;
-                    printf("2\n");
             }
-            printf("4\n");
             tempR = getNotGrantedIndexToTheRight(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
             tempL = getNotGrantedIndexToTheLeft(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
             if(tempL == -1){
@@ -460,12 +397,6 @@ void LOOK(int N, char* filename){
     fflush(stdout);
 
     fclose(fptr);
-
-    /*free(requestGrantTime); 
-    free(cylinder);
-    free(grantRequest);*/
-
-     
 }
 
 // returns -1 if no such index
@@ -489,8 +420,8 @@ int getNotGrantedMinimalIndexToTheLeft(int * request, int * granted, int headLoc
 void CLOOK(int N, char* filename){
  
     FILE* fptr;
-    int time[100];
-    int cylinder[100];
+    int time[101];
+    int cylinder[101];
 
     fptr = fopen(filename, "r");
 
@@ -515,7 +446,7 @@ void CLOOK(int N, char* filename){
     }
 
 
-    if(linecount != 100){
+    if(linecount != 101){
         time[linecount] = -1;
         cylinder[linecount] = -1;
     }
@@ -527,20 +458,17 @@ void CLOOK(int N, char* filename){
     }
 
     int elapsedTime = 0;
-    int oldElapsedTime = 0;
     int numberOfRequestsFinished = 0;
    
-    int *requestGrantTime;
-    requestGrantTime = malloc(100*sizeof(int));
+    int requestGrantTime[101];
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 101; i++){
         requestGrantTime[i] = 0;
     }
 
-    int *grantRequest;
-    grantRequest =  malloc(100*sizeof(int));
+    int grantRequest[101];
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 101; i++){
         if(i >= linecount)
             grantRequest[i] = 1;
         else 
@@ -549,20 +477,14 @@ void CLOOK(int N, char* filename){
 
     int currentIndex = 0;
     int currentCylinder = 1;
-
-    int direction = 1; // 1--> right /// 0--> left
     int tempR = -2;
-    int tempL = -2;
 
     tempR = getNotGrantedIndexToTheRight(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
 
     while(numberOfRequestsFinished < linecount){
 
-        
-
         if(elapsedTime < time[currentIndex]){
             elapsedTime++;
-            printf("1\n");
             continue;
         }
     
@@ -579,16 +501,12 @@ void CLOOK(int N, char* filename){
             if(currentCylinder == cylinder[currentIndex]){
                 requestGrantTime[currentIndex] += elapsedTime - time[currentIndex];
                 grantRequest[currentIndex] = 1;
-                oldElapsedTime = elapsedTime;
-                printf("%d-------\n", numberOfRequestsFinished);
                 fflush(stdout);
                 numberOfRequestsFinished++;
-                printf("2\n");
             }
-            printf("3\n");
             tempR = getNotGrantedIndexToTheRight(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
         }
-        else if(tempR == -1){
+        else if(tempR == -1){    
             
             tempR = getNotGrantedMinimalIndexToTheLeft(cylinder,  grantRequest, currentCylinder, linecount, time, elapsedTime);
             if(tempR  == -1){
@@ -597,11 +515,6 @@ void CLOOK(int N, char* filename){
             while(currentCylinder > cylinder[tempR]){
                 currentCylinder--;
                 requestGrantTime[tempR]--;
-                /*for(int i = 0; i < linecount; i++){
-                    if(grantRequest[i] == 0 && time[i] <= elapsedTime){
-                        requestGrantTime[i]--;
-                    }
-                }*/
                 elapsedTime++;  
             }
             
@@ -619,11 +532,6 @@ void CLOOK(int N, char* filename){
     fflush(stdout);
 
     fclose(fptr);
-
-    /*free(requestGrantTime); 
-    free(cylinder);
-    free(grantRequest);*/
-
     fclose(fptr);
 
      
@@ -641,15 +549,16 @@ int main(int argc, char ** argv){
     char * filename = argv[2];
    
     //Use FCFS to schedule
-    //FCFS(N, filename);
+    FCFS(N, filename);
     
     //Use SSTF to schedule
-    //SSTF(N, filename);
+    SSTF(N, filename);
 
     //Use LOOK to schedule
-    //LOOK(N, filename);
+    LOOK(N, filename);
 
     //Use CLOOK to schedule
     CLOOK(N, filename);
+
     return 0;
 }
