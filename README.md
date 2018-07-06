@@ -5,7 +5,7 @@ Note: The implementation is made assuming the rotational latency is 0 for all di
 
 
 Contributors:
-  Doruk Çakmakçı
+  Doruk Çakmakçı,
   Arkın Yılmaz
   
   @BilkentUniversity
